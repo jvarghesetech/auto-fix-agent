@@ -14,9 +14,24 @@ Built with the [Claude Agent SDK](https://docs.claude.com/en/docs/agents-and-too
 
 ## Status
 
-🚧 Work in progress — built live during a hackathon.
+✅ Working end-to-end. Live proof: [PR #1](https://github.com/jvarghesetech/auto-fix-demo-target/pull/1),
+opened autonomously against the seeded [demo target repo](https://github.com/jvarghesetech/auto-fix-demo-target).
 
 ## Project layout
 
-- `agent/` — the agent itself (planning + tool loop)
-- `demo-target-repo/` — a small seeded repo with intentional bugs, used for a reliable live demo
+- `agent/fixer.py` — runs the Claude Agent SDK loop that finds and fixes bugs
+- `agent/validate.py` — independently re-runs the test suite (never trusts the agent's self-report)
+- `agent/ship.py` — branches, commits, pushes, and opens the PR via `gh`
+- `agent/run.py` — end-to-end CLI entrypoint tying it all together
+
+## Usage
+
+```bash
+python3 -m venv .venv
+.venv/bin/pip install -r requirements.txt
+
+.venv/bin/python -m agent.run --repo https://github.com/<owner>/<repo>.git
+```
+
+The agent will clone the repo, diagnose and fix failing tests (retrying with real pytest
+output fed back in if needed), independently verify the fix, then open a pull request.
